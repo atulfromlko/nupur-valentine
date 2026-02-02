@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Be My Valentine ❤️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #ffd6e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+  }
+
+  .card {
+    width: 80vw;
+    height: 80vh;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    text-align: center;
+  }
+
+  /* 💓 HEARTBEAT */
+  @keyframes heartbeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.06); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.06); }
+    70% { transform: scale(1); }
+  }
+
+  h1 {
+    font-size: 4rem;
+    margin: 0;
+    color: #e91e63;
+    animation: heartbeat 2s infinite;
+    z-index: 2;
+  }
+
+  /* ✨ SPARKLE TEXT */
+  h2 {
+    font-size: 2.6rem;
+    margin: 0;
+    color: #e91e63;
+    position: relative;
+    z-index: 2;
+  }
+
+  h2::after {
+    content: " ✨ ✨ ✨";
+    animation: sparkle 2s infinite alternate;
+  }
+
+  @keyframes sparkle {
+    from { opacity: 0.3; }
+    to { opacity: 1; }
+  }
+
+  .button-group {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  button {
+    padding: 18px 42px;
+    font-size: 22px;
+    border: none;
+    border-radius: 35px;
+    cursor: pointer;
+  }
+
+  #yesBtn {
+    background: #e91e63;
+    color: white;
+  }
+
+  .no-placeholder {
+    width: 98px;
+    height: 56px;
+  }
+
+  #noBtn {
+    background: #cccccc;
+    color: #333;
+    position: absolute;
+    z-index: 2;
+  }
+
+  .love-message {
+    display: none;
+    font-size: 2.8rem;
+    color: #e91e63;
+    line-height: 1.6;
+    z-index: 2;
+  }
+
+  /* 📸 PHOTO */
+  .love-photo {
+    width: 260px;
+    max-width: 80%;
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    animation: photoPop 0.8s ease-out;
+  }
+
+  @keyframes photoPop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* FLOATING HEARTS + CONFETTI */
+  .float {
+    position: absolute;
+    pointer-events: none;
+    animation: floatUp linear forwards;
+    opacity: 0.9;
+    z-index: 1;
+  }
+
+  @keyframes floatUp {
+    from { transform: translateY(0); opacity: 0.9; }
+    to { transform: translateY(-130%); opacity: 0; }
+  }
+
+  /* BURST */
+  .burst {
+    position: absolute;
+    pointer-events: none;
+    animation: burst 1s ease-out forwards;
+    z-index: 3;
+  }
+
+  @keyframes burst {
+    from { transform: translate(0,0) scale(1); opacity: 1; }
+    to { transform: translate(var(--x), var(--y)) scale(1.4); opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="card" id="card">
+
+  <h1 id="title">Nupur 💖</h1>
+  <h2 id="subtitle">Will you be my Valentine?</h2>
+
+  <div class="button-group" id="buttonGroup">
+    <button id="yesBtn">Yes</button>
+    <div class="no-placeholder"></div>
+  </div>
+
+  <button id="noBtn">No</button>
+
+  <div class="love-message" id="loveMessage">
+    🎉 Yay! Best Decision Ever 🎉<br><br>
+
+    <img src="couple.jpg" alt="Us ❤️" class="love-photo"><br><br>
+
+    I Love You! ❤️<br>
+    – Atul
+  </div>
+
+</div>
+
+<!-- 🎵 BACKGROUND MUSIC -->
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c1b0b8f6d.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const card = document.getElementById("card");
+  const noBtn = document.getElementById("noBtn");
+  const yesBtn = document.getElementById("yesBtn");
+  const title = document.getElementById("title");
+  const subtitle = document.getElementById("subtitle");
+  const buttonGroup = document.getElementById("buttonGroup");
+  const loveMessage = document.getElementById("loveMessage");
+  const bgMusic = document.getElementById("bgMusic");
+
+  const heartColors = ["#ff5c8d", "#ff2e63", "#c77dff", "#ff9f9f"];
+  const confettiColors = ["#ffd166", "#06d6a0", "#4dabf7"];
+
+  /* Start music on first interaction */
+  function startMusic() {
+    bgMusic.volume = 0.4;
+    bgMusic.play().catch(()=>{});
+    document.removeEventListener("click", startMusic);
+  }
+  document.addEventListener("click", startMusic);
+
+  /* Initial NO position */
+  function placeInitially() {
+    const p = document.querySelector(".no-placeholder").getBoundingClientRect();
+    const c = card.getBoundingClientRect();
+    noBtn.style.left = (p.left - c.left) + "px";
+    noBtn.style.top  = (p.top - c.top) + "px";
+  }
+  placeInitially();
+
+  function rect(el) {
+    const r = el.getBoundingClientRect();
+    const c = card.getBoundingClientRect();
+    return { left:r.left-c.left, top:r.top-c.top, right:r.right-c.left, bottom:r.bottom-c.top };
+  }
+
+  function overlaps(a, b, pad = 20) {
+    return !(a.right+pad<b.left||a.left>b.right+pad||a.bottom+pad<b.top||a.top>b.bottom+pad);
+  }
+
+  function moveNoButton() {
+    const forbidden = [rect(title), rect(subtitle), rect(yesBtn)];
+    const maxX = card.clientWidth - noBtn.offsetWidth - 20;
+    const maxY = card.clientHeight - noBtn.offsetHeight - 20;
+
+    for (let i=0;i<60;i++){
+      const x=Math.random()*maxX+10;
+      const y=Math.random()*maxY+10;
+      const r={left:x,top:y,right:x+noBtn.offsetWidth,bottom:y+noBtn.offsetHeight};
+      if(!forbidden.some(f=>overlaps(r,f))){
+        noBtn.style.left=x+"px";
+        noBtn.style.top=y+"px";
+        return;
+      }
+    }
+  }
+
+  noBtn.addEventListener("mouseenter", moveNoButton);
+  noBtn.addEventListener("touchstart", moveNoButton);
+
+  /* Soft pop sound */
+  function playPop() {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 420;
+    gain.gain.value = 0.15;
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+    osc.stop(ctx.currentTime + 0.15);
+  }
+
+  /* Floating hearts + confetti */
+  function createFloat() {
+    const el=document.createElement("div");
+    const isHeart=Math.random()>0.4;
+    el.className="float";
+    el.innerText=isHeart?"💗":"";
+    el.style.left=Math.random()*card.clientWidth+"px";
+    el.style.top=Math.random()*card.clientHeight+"px";
+    el.style.fontSize=Math.random()*16+16+"px";
+    el.style.color=isHeart?heartColors[Math.floor(Math.random()*heartColors.length)]
+                           :confettiColors[Math.floor(Math.random()*confettiColors.length)];
+    if(!isHeart){
+      el.style.width="8px";
+      el.style.height="12px";
+      el.style.background=el.style.color;
+    }
+    el.style.animationDuration=Math.random()*1.5+1.5+"s";
+    card.appendChild(el);
+    setTimeout(()=>el.remove(),3000);
+  }
+  setInterval(createFloat,120);
+
+  function burst() {
+    playPop();
+    const cx=card.clientWidth/2, cy=card.clientHeight/2;
+    for(let i=0;i<40;i++){
+      const el=document.createElement("div");
+      const isHeart=Math.random()>0.5;
+      el.className="burst";
+      el.innerText=isHeart?"💗":"";
+      el.style.left=cx+"px";
+      el.style.top=cy+"px";
+      el.style.fontSize=Math.random()*18+18+"px";
+      el.style.color=isHeart?heartColors[Math.floor(Math.random()*heartColors.length)]
+                             :confettiColors[Math.floor(Math.random()*confettiColors.length)];
+      if(!isHeart){
+        el.style.width="8px";
+        el.style.height="12px";
+        el.style.background=el.style.color;
+      }
+      el.style.setProperty("--x",(Math.random()-0.5)*400+"px");
+      el.style.setProperty("--y",(Math.random()-0.5)*300+"px");
+      card.appendChild(el);
+      setTimeout(()=>el.remove(),1000);
+    }
+  }
+
+  yesBtn.addEventListener("click",()=>{
+    burst();
+    noBtn.style.display="none";
+    buttonGroup.style.display="none";
+    title.style.display="none";
+    subtitle.style.display="none";
+    loveMessage.style.display="block";
+  });
+</script>
+
+</body>
+</html>
